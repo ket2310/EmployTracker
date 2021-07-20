@@ -12,26 +12,19 @@ const connection = mysql.createConnection({
 const viewEmployeeRoles = async () => {
     const choices = await getEmployeeRoles();
     console.log(choices);
-    // return new Promise((resolve, reject) => {
-    //     inquirer.prompt([
-    //         {
-    //             type: 'list',
-    //             message: 'What is the Employee\'s role?',
-    //             name: 'empRole',
-    //             choices: choices,
-    //         },
-    //     ]).then(({ role }) => {
-    //         console.log(role);
-    //         resolve();
-    //     });
-    // });
+  
 }
 
 const getEmployeeRoles = () => {
     return new Promise((resolve, reject) => {
         connection.query('select title from role', (err, res) => {
             if (err) reject(err);
+            if(res)
             resolve(res);
+            else {
+                const issue = new Error();
+                reject(issue);
+            }
         });
     });
 }
