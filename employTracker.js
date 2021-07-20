@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const ctable = require('console.table');
+const questions = require('./src/inquieries')
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -66,7 +67,7 @@ const completeTask = () => {
 const viewEmployees = () => {
     const query = ' SELECT * FROM Employees';
     connection.query(query, (err, res) => {
-        console.log( ctable.getTable(res));
+        console.log(ctable.getTable(res));
     });
     completeTask();
 };
@@ -74,7 +75,7 @@ const viewEmployees = () => {
 const viewRoles = () => {
     const query = ' SELECT * FROM ROLE';
     connection.query(query, (err, res) => {
-        console.log( ctable.getTable(res));
+        console.log(ctable.getTable(res));
     });
     completeTask();
 }
@@ -82,76 +83,75 @@ const viewRoles = () => {
 const viewDepartments = () => {
     const query = ' SELECT * FROM department';
     connection.query(query, (err, res) => {
-        console.log( ctable.getTable(res));
+        console.log(ctable.getTable(res));
     });
     completeTask();
 }
 
-const addEmployee = () => {
+///////////////////////////////////////////////////////////////////////////////////
 
-    const query = connection.query(
-        'INSERT INTO products SET ?',
-        {
-          flavor: 'Rocky Road',
-          price: 3.0,
-          quantity: 50,
-        },
-        (err, res) => {
-          if (err) throw err;
-          console.log(`${res.affectedRows} product inserted!\n`);
-          // Call updateProduct AFTER the INSERT completes
-        }
-      );
-    
+const addEmployee = () => {
+    inquirer.prompt(questions.empQuestions).then((answer) => {
+        connection.query(
+            'INSERT INTO Employees SET ?',
+            {
+                first_name: `${answer.empFirst}`,
+                last_name: `${answer.empLast}`,
+                role_id: `${answer.empRold}`
+            },
+            (err, res) => {
+                if (err) throw err;
+                console.log(`${res.affectedRows} product inserted!\n`);
+            }
+        );
+    })
 }
 
-const addDepartment= () => {
-
-    const query = connection.query(
-        'INSERT INTO department SET ?',
-        {
-          flavor: 'Rocky Road',
-          price: 3.0,
-          quantity: 50,
-        },
-        (err, res) => {
-          if (err) throw err;
-          console.log(`${res.affectedRows} product inserted!\n`);
-        }
-      );
-    
+const addDepartment = () => {
+    inquirer.prompt(questions.deptQuestions).then((answer) => {
+        connection.query(
+            'INSERT INTO department SET ?',
+            {
+                name: `${answer.deptName}`,
+            },
+            (err, res) => {
+                if (err) throw err;
+                console.log(`${res.affectedRows} product inserted!\n`);
+            }
+        );
+    })
 }
 
 const addRole = () => {
-
-    const query = connection.query(
-        'INSERT INTO products SET ?',
-        {
-          flavor: 'Rocky Road',
-          price: 3.0,
-          quantity: 50,
-        },
-        (err, res) => {
-          if (err) throw err;
-          console.log(`${res.affectedRows} product inserted!\n`);
-        }
-      );
-    
+    inquirer.prompt(questions.roleQuestions).then((answer) => {
+        connection.query(
+            'INSERT INTO role SET ?',
+            {
+                title: `${answer.roleTitle}`,
+                salary: `${answer.roleSalary}`, 
+                department_id: `${answer.roleDept}`
+            },
+            (err, res) => {
+                if (err) throw err;
+                console.log(`${res.affectedRows} product inserted!\n`);
+            }
+        );
+    })
 }
 
 const updateRoles = () => {
 
-    const query = connection.query(
+    connection.query(
         'INSERT INTO products SET ?',
         {
-          flavor: 'Rocky Road',
-          price: 3.0,
-          quantity: 50,
+            flavor: 'Rocky Road',
+            price: 3.0,
+            quantity: 50,
         },
         (err, res) => {
-          if (err) throw err;
-          console.log(`${res.affectedRows} product inserted!\n`);
+            if (err) throw err;
+            console.log(`${res.affectedRows} product inserted!\n`);
         }
-      );
-    
+    );
+
 }
