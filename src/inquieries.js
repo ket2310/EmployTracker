@@ -1,4 +1,5 @@
 const mysql = require('mysql');
+const inquirer = require('inquirer');
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -8,6 +9,32 @@ const connection = mysql.createConnection({
     database: 'EmployeeTrackerDB',
 });
 
+const viewEmployeeRoles = async () => {
+    const choices = await getEmployeeRoles();
+    console.log(choices);
+    // return new Promise((resolve, reject) => {
+    //     inquirer.prompt([
+    //         {
+    //             type: 'list',
+    //             message: 'What is the Employee\'s role?',
+    //             name: 'empRole',
+    //             choices: choices,
+    //         },
+    //     ]).then(({ role }) => {
+    //         console.log(role);
+    //         resolve();
+    //     });
+    // });
+}
+
+const getEmployeeRoles = () => {
+    return new Promise((resolve, reject) => {
+        connection.query('select title from role', (err, res) => {
+            if (err) reject(err);
+            resolve(res);
+        });
+    });
+}
 
 const empQuestions = [
     {
@@ -21,10 +48,10 @@ const empQuestions = [
         name: 'empLast',
     },
     {
-        type: 'input',
+        type: 'list',
         message: 'What is the Employee\'s role?',
         name: 'empRole',
-        choices: connection.query('select * from role', (err, res) => {res}),
+        choices: viewEmployeeRoles(),
     },
 ];
 
