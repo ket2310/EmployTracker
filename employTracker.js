@@ -134,14 +134,20 @@ const addDepartment = () => {
     })
 }
 
-const addRole = () => {
-    inquirer.prompt(questions.roleQuestions).then((answer) => {
+const addRole = async () => {
+    let depts = await questions.viewCompanyDepartments();
+    depts = depts.map(dept => ({ name: dept.name, value: dept.id }));
+
+    let questionToAsk = questions.roleQuestions;    
+    questionToAsk[2].choices = depts;
+
+    inquirer.prompt(questionToAsk).then((answer) => {
         connection.query(
             'INSERT INTO role SET ?',
             {
-                title: `${answer.roleTitle}`,
-                salary: `${answer.roleSalary}`,
-                department_id: `${answer.roleDept}`
+                title: answer.roleTitle,
+                salary: answer.roleSalary,
+                department_id: answer.roleDept
             },
             (err, res) => {
                 if (err) throw err;
