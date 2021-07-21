@@ -54,6 +54,7 @@ const completeTask = () => {
                     viewRoles();
                     break;
                 case 'View employees':
+                    console.log('\n')
                     viewEmployees();
                     break;
                 case 'Update roles':
@@ -65,7 +66,7 @@ const completeTask = () => {
 };
 
 const viewEmployees = () => {
-    const query = ' SELECT * FROM Employees';
+    const query = ' SELECT first_name, last_name, role_id, manager_id FROM Employees';
     connection.query(query, (err, res) => {
         console.log(ctable.getTable(res));
     });
@@ -90,20 +91,29 @@ const viewDepartments = () => {
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-const addEmployee = () => {
-    inquirer.prompt(questions.empQuestions).then((answer) => {
+const addEmployee = async () => {
+
+    let roles = await questions.viewEmployeeRoles();
+    roles = roles.map(role => ({ name: role.title, value: role.id }));
+
+    let questionToAsk = questions.empQuestions;
+    questionToAsk[2].choices = roles;
+
+    inquirer.prompt(questionToAsk).then((answer) => {
+        console.log(answer);
         connection.query(
             'INSERT INTO Employees SET ?',
             {
                 first_name: `${answer.empFirst}`,
                 last_name: `${answer.empLast}`,
-                role_id: `${answer.empRold}`
+                role_id: `${answer.empRole}`
             },
             (err, res) => {
                 if (err) throw err;
-                console.log(`${res.affectedRows} product inserted!\n`);
+                console.log(`${res.affectedRows} Employee inserted!\n`);
             }
         );
+        completeTask();
     })
 }
 
@@ -116,9 +126,10 @@ const addDepartment = () => {
             },
             (err, res) => {
                 if (err) throw err;
-                console.log(`${res.affectedRows} product inserted!\n`);
+                console.log(`${res.affectedRows} Department inserted!\n`);
             }
         );
+        completeTask();
     })
 }
 
@@ -128,7 +139,31 @@ const addRole = () => {
             'INSERT INTO role SET ?',
             {
                 title: `${answer.roleTitle}`,
-                salary: `${answer.roleSalary}`, 
+                salary: `${answer.roleSalary}`,
+                department_id: `${answer.roleDept}`
+            },
+            (err, res) => {
+                if (err) throw err;
+                console.log(`${res.affectedRows} Role inserted!\n`);
+            }
+        );
+        completeTask();
+    })
+}
+
+const updateRoles = () => {
+    let depts = await questions.viewCompanyDepartments();
+    depts = depts.map(dept => ({ name: dept.title, value: dept.id }));
+
+    let questionToAsk = questions.roleQuestions;
+    questionToAsk[2].choices = depts;
+    
+    inquirer.prompt(questions.roleQuestions).then((answer) => {
+        connection.query(
+            'UPDATE ROLE SET ?',
+            {
+                title: `${answer.roleTitle}`,
+                salary: `${answer.roleSalary}`,
                 department_id: `${answer.roleDept}`
             },
             (err, res) => {
@@ -136,22 +171,6 @@ const addRole = () => {
                 console.log(`${res.affectedRows} product inserted!\n`);
             }
         );
-    })
-}
-
-const updateRoles = () => {
-
-    connection.query(
-        'INSERT INTO products SET ?',
-        {
-            flavor: 'Rocky Road',
-            price: 3.0,
-            quantity: 50,
-        },
-        (err, res) => {
-            if (err) throw err;
-            console.log(`${res.affectedRows} product inserted!\n`);
-        }
-    );
-
+        completeTask();
+    });
 }

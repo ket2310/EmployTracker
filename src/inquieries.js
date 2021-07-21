@@ -11,16 +11,36 @@ const connection = mysql.createConnection({
 
 const viewEmployeeRoles = async () => {
     const choices = await getEmployeeRoles();
-    console.log(choices);
-  
+    return choices;
 }
 
 const getEmployeeRoles = () => {
     return new Promise((resolve, reject) => {
-        connection.query('select title from role', (err, res) => {
+        connection.query('select title, id from role', (err, res) => {
             if (err) reject(err);
-            if(res)
-            resolve(res);
+            if(res) {
+                resolve(res);
+            }
+            else {
+                const issue = new Error();
+                reject(issue);
+            }
+        });
+    });
+}
+
+const viewCompanyDepartments = async () => {
+    const depts = await getCompanyDepartments();
+    return depts;
+}
+
+const getCompanyDepartments = () => { 
+    return new Promise((resolve, reject) => {
+        connection.query('select name, id from department', (err, res) => {
+            if (err) reject(err);
+            if(res) {
+                resolve(res);
+            }
             else {
                 const issue = new Error();
                 reject(issue);
@@ -44,7 +64,7 @@ const empQuestions = [
         type: 'list',
         message: 'What is the Employee\'s role?',
         name: 'empRole',
-        choices: viewEmployeeRoles(),
+        //choices: viewEmployeeRoles(),
     },
 ];
 
@@ -69,7 +89,7 @@ const roleQuestions = [
         name: 'roleSalary',
     },
     {
-        type: 'input',
+        type: 'list',
         message: 'Department:',
         name: 'roleDept',
     },
@@ -79,5 +99,7 @@ const roleQuestions = [
 module.exports = {
     empQuestions,
     deptQuestions,
-    roleQuestions
+    roleQuestions,
+    viewEmployeeRoles, 
+    viewCompanyDepartments
 }
