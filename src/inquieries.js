@@ -81,7 +81,7 @@ const roleQuestions = [
     {
         type: 'input',
         message: 'Role title:',
-        name: 'roleTitile',
+        name: 'roleTitle',
     },
     {
         type: 'input',

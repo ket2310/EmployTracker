@@ -59,6 +59,7 @@ const completeTask = () => {
                     break;
                 case 'Update roles':
                     updateRoles();
+                    break;
                 default:
                     console.log(`Invalid action: ${answer.action}`);
             }
@@ -151,26 +152,72 @@ const addRole = () => {
     })
 }
 
-const updateRoles = () => {
+const updateRoles = async () => {
     let depts = await questions.viewCompanyDepartments();
-    depts = depts.map(dept => ({ name: dept.title, value: dept.id }));
+    depts = depts.map(dept => ({ name: dept.name, value: dept.id }));
 
-    let questionToAsk = questions.roleQuestions;
-    questionToAsk[2].choices = depts;
-    
-    inquirer.prompt(questions.roleQuestions).then((answer) => {
-        connection.query(
-            'UPDATE ROLE SET ?',
-            {
-                title: `${answer.roleTitle}`,
-                salary: `${answer.roleSalary}`,
-                department_id: `${answer.roleDept}`
-            },
-            (err, res) => {
-                if (err) throw err;
-                console.log(`${res.affectedRows} product inserted!\n`);
-            }
-        );
-        completeTask();
+    let questionToAsk = [{
+        type: 'input',
+        message: 'Salary:',
+        name: 'roleSalary',
+    },
+    {
+        type: 'list',
+        message: 'Department:',
+        name: 'roleDept',
+    },
+    ]
+    questionToAsk[1].choices = depts;
+
+    // Choose the role we want to update.
+    connection.query('SELECT * FROM role', (err, results) => {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    name: 'rolTitle',
+                    type: 'rawlist',
+                    choices() {
+                        const choiceArray = [];
+                        results.forEach(({ title }) => {
+                            choiceArray.push(title);
+                        });
+                        return choiceArray;
+                    },
+                    message: 'What role would you like to update?',
+                },
+            ]).then((answer) => {
+                // get the information of the chosen item
+                let chosenRole;
+                results.forEach((role) => {
+                    if (role.title === answer.rolTitle) {
+                        chosenRole = role;
+                    }
+                });
+                inquirer.prompt(questionToAsk).then((answer) => {
+
+                    connection.query(
+                        'UPDATE role SET ?, ?  WHERE ?',
+                        [
+                            {
+                                salary: answer.roleSalary,
+                            },
+                            {
+                                department_id: answer.roleDept,
+                            },
+                            {
+                                id: chosenRole.id,
+                            },
+                        ],
+                        (error) => {
+                            if (error) throw err;
+                            console.log(`${res.affectedRows} Role Updated\n`);
+                        }
+                    )
+                    completeTask();
+                });
+
+            })
     });
+
 }
