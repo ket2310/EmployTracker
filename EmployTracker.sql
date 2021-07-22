@@ -43,7 +43,7 @@ values('Legal');
 CREATE TABLE Role (
   id int not NULL auto_increment,
   title VARCHAR(30) NULL,
-  salary DECIMAL(10,2),
+  salary DECIMAL(10,2) null,
   department_id int null,
   PRIMARY KEY (id)
 );
