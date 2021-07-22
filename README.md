@@ -2,4 +2,4 @@
 
 
 
- ![Employee Tracker](images/EmployTracker.png) 
+ ![Employee Tracker](images/EmployeeTracker.png) 
